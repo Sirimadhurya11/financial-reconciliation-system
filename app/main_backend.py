@@ -3,11 +3,11 @@ from decimal import Decimal
 from typing import Optional
 import os
 
+import bcrypt
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import text
-from passlib.context import CryptContext
 from jose import JWTError, jwt
 
 from app.database import SessionLocal, engine, Base
@@ -41,20 +41,57 @@ Base.metadata.create_all(bind=engine)
 # PASSWORD HASHING
 # =========================================================
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
+def hash_password(password: str) -> str:
+
+    password_bytes = password.encode("utf-8")
+
+    if len(password_bytes) > 72:
+        raise ValueError(
+            "Password cannot be longer than 72 bytes."
+        )
+
+    hashed = bcrypt.hashpw(
+        password_bytes,
+        bcrypt.gensalt()
+    )
+
+    return hashed.decode("utf-8")
+
+
+def verify_password(
+    password: str,
+    password_hash: str
+) -> bool:
+
+    password_bytes = password.encode("utf-8")
+
+    if len(password_bytes) > 72:
+        return False
+
+    try:
+
+        return bcrypt.checkpw(
+            password_bytes,
+            password_hash.encode("utf-8")
+        )
+
+    except Exception:
+
+        return False
 
 
 # =========================================================
 # JWT CONFIGURATION
 # =========================================================
 
-SECRET_KEY = "financial-reconciliation-secret-key-change-this"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "financial-reconciliation-secret-key-change-this"
+)
 
+ALGORITHM = "HS256"
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 security = HTTPBearer()
 
@@ -138,7 +175,7 @@ def create_default_admin():
 
         if not existing_user:
 
-            password_hash = pwd_context.hash(
+            password_hash = hash_password(
                 "admin123"
             )
 
@@ -226,7 +263,9 @@ def login(login_data: LoginRequest):
                 detail="Invalid username or password"
             )
 
-        password_valid = pwd_context.verify(
+        # FIX:
+        # Use our bcrypt verification function.
+        password_valid = verify_password(
             login_data.password,
             user.password_hash
         )
