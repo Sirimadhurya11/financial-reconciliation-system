@@ -1,216 +1,256 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Financial Reconciliation - Login</title>
 
-```
-<style>
-    * {
-        box-sizing: border-box;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
 
-    .login-container {
-        width: 100%;
-        max-width: 400px;
-        padding: 30px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
 
-    h1 {
-        text-align: center;
-        margin-bottom: 10px;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
 
-    .subtitle {
-        text-align: center;
-        color: #666;
-        margin-bottom: 25px;
-    }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
 
-    label {
-        display: block;
-        margin-top: 15px;
-        margin-bottom: 6px;
-        font-weight: bold;
-    }
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
 
-    input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 15px;
-    }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
 
-    button {
-        width: 100%;
-        margin-top: 25px;
-        padding: 12px;
-        border: none;
-        border-radius: 6px;
-        background: #2563eb;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-    }
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-    button:hover {
-        background: #1d4ed8;
-    }
+        button:hover {
+            background: #1d4ed8;
+        }
 
-    #message {
-        margin-top: 15px;
-        text-align: center;
-        font-weight: bold;
-    }
-</style>
-```
+        button:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
 
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 20px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="login-container">
+    <div class="login-container">
 
-```
-<h1>Financial Reconciliation</h1>
+        <h1>Financial Reconciliation</h1>
 
-<div class="subtitle">
-    Admin Login
-</div>
+        <div class="subtitle">
+            Admin Login
+        </div>
 
-<form id="loginForm">
+        <form id="loginForm">
 
-    <label for="username">
-        Username
-    </label>
+            <label for="username">
+                Username
+            </label>
 
-    <input
-        type="text"
-        id="username"
-        placeholder="Enter username"
-        required
-    >
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter username"
+                autocomplete="username"
+                required
+            >
 
-    <label for="password">
-        Password
-    </label>
+            <label for="password">
+                Password
+            </label>
 
-    <input
-        type="password"
-        id="password"
-        placeholder="Enter password"
-        required
-    >
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
 
-    <button type="submit">
-        Login
-    </button>
+            <button type="submit" id="loginButton">
+                Login
+            </button>
 
-</form>
+        </form>
 
-<div id="message"></div>
-```
+        <div id="message"></div>
 
-</div>
+    </div>
 
-<script>
+    <script>
+        document
+            .getElementById("loginForm")
+            .addEventListener("submit", async function (event) {
 
-document
-    .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
+                event.preventDefault();
 
-        event.preventDefault();
+                const username =
+                    document
+                        .getElementById("username")
+                        .value
+                        .trim();
 
-        const username =
-            document.getElementById("username").value.trim();
+                const password =
+                    document
+                        .getElementById("password")
+                        .value;
 
-        const password =
-            document.getElementById("password").value;
+                const message =
+                    document.getElementById("message");
 
-        const message =
-            document.getElementById("message");
+                const loginButton =
+                    document.getElementById("loginButton");
 
-        message.textContent = "Logging in...";
+                message.textContent = "Logging in...";
+                message.style.color = "#666";
 
-        try {
+                loginButton.disabled = true;
 
-            const response = await fetch("/login", {
+                try {
 
-                method: "POST",
+                    const response = await fetch("/login", {
+                        method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
 
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                })
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    });
 
+                    let data = {};
+
+                    try {
+                        data = await response.json();
+                    } catch (jsonError) {
+                        data = {};
+                    }
+
+                    if (!response.ok) {
+
+                        message.textContent =
+                            data.detail ||
+                            "Invalid username or password.";
+
+                        message.style.color = "#dc2626";
+
+                        loginButton.disabled = false;
+
+                        return;
+                    }
+
+                    if (!data.access_token) {
+
+                        message.textContent =
+                            "Login failed: no access token received.";
+
+                        message.style.color = "#dc2626";
+
+                        loginButton.disabled = false;
+
+                        return;
+                    }
+
+                    localStorage.setItem(
+                        "access_token",
+                        data.access_token
+                    );
+
+                    localStorage.setItem(
+                        "username",
+                        data.username || username
+                    );
+
+                    localStorage.setItem(
+                        "loggedIn",
+                        "true"
+                    );
+
+                    message.textContent =
+                        "Login successful. Opening dashboard...";
+
+                    message.style.color = "#16a34a";
+
+                    setTimeout(function () {
+                        window.location.href =
+                            "/dashboard-page";
+                    }, 300);
+
+                } catch (error) {
+
+                    console.error(
+                        "Login error:",
+                        error
+                    );
+
+                    message.textContent =
+                        "Cannot connect to server.";
+
+                    message.style.color = "#dc2626";
+
+                    loginButton.disabled = false;
+                }
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-
-                message.textContent =
-                    data.detail || "Login failed";
-
-                return;
-            }
-
-            /*
-             * Save JWT token
-             */
-            localStorage.setItem(
-                "access_token",
-                data.access_token
-            );
-
-            localStorage.setItem(
-                "username",
-                data.username
-            );
-
-            localStorage.setItem(
-                "loggedIn",
-                "true"
-            );
-
-            /*
-             * Open dashboard
-             */
-            window.location.href =
-                "/dashboard-page";
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                "Cannot connect to server.";
-
-        }
-
-    });
-
-</script>
+    </script>
 
 </body>
 </html>
